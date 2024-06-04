@@ -1,7 +1,7 @@
-## Heart-Attack-Analysis-Prediction
+# Heart-Attack-Analysis-Prediction
 This repository contains a project focused on analyzing and predicting heart attacks using machine learning techniques. The application is built with Streamlit, providing an interactive interface for users to explore and predict heart.
 
-# First-time setup
+## First-time setup
 
  1. Make python's virtual environment
 	`python -m venv .venv`
