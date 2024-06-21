@@ -2,9 +2,10 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import utils
-from models.neuralNetwork import loadModel
+from models.neuralNet import loadModel
 from components.sidebar import viewSideBar
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from models.neuralNetTf import loadModelTf
 
 
 # Page configurations
@@ -14,6 +15,7 @@ TOC = utils.TableOfContent()
 
 # -----------------------------------------------------------
 st.title("Heart Attack Prediction using Neural Network")
+
 
 # Python implementation
 st.header("Data Cleaning & Preprocessing",
@@ -50,7 +52,6 @@ print(f"No. of Columns {len(df.columns)}\\nNo. of Rows {df.shape[0]})''')
 df = df.drop_duplicates()
 st.text(f"No. of Columns {len(df.columns)}\nNo. of Rows {df.shape[0]}")
 
-
 # Separate features & target variable
 st.subheader("Features & target variables",
              anchor=TOC.addSubAnchor("Data Cleaning & Preprocessing", "Features & target variables"))
@@ -81,6 +82,7 @@ X_train, X_test, y_train, y_test = utils.preProcessAndSplit(df)
 st.text(f"Training set -> {X_train.shape}\nTest set ->{X_test.shape}")
 
 st.divider()
+
 
 # Python implementation
 st.header("Neural Network using Python", anchor=TOC.addAnchor(
@@ -256,14 +258,14 @@ else:
 
 model_metrics = {"loss": st.session_state["model"].errors,
                  "accuracy": st.session_state["model"].accuracy}
-st.code('''print(f'Test loss: { model_metrics["loss"][-1]: .3}\\n')
+st.code('''print(f'Loss: { model_metrics["loss"][-1]: .3}\\n')
 pd.DataFrame({"loss":model_metrics["loss"],"accuracy":model_metrics["accuracy"]}).plot(xlabel="epochs")''')
-st.write(f'Test loss: { model_metrics["loss"][-1]: .3}')
+st.write(f'Loss: { model_metrics["loss"][-1]: .3}')
 
 st.line_chart(pd.DataFrame(
     {"loss": model_metrics["loss"], "accuracy": model_metrics["accuracy"]}), use_container_width=False)
 
-
+# Prediction
 st.subheader("Prediction on Test Data",
              anchor=TOC.addSubAnchor("Neural Network using Python", "Prediction on Test Data"))
 st.code('''y_pred=net.predict(X_test)
@@ -271,12 +273,12 @@ y_pred=(y_pred > 0.5).astype(int)''')
 y_pred = utils.predNNModel(X_test, st.session_state["model"])
 st.write(y_pred.reshape(1, -1))
 
+# Evaluation
 st.subheader("Model evalaution",
              anchor=TOC.addSubAnchor("Neural Network using Python", "Model evalaution"))
 st.write("**Accuracy:**")
 st.code('''
-print(
-    f'Total test size: {y_test.size}, Correct predictions: { (y_pred == y_test).sum() }\\n')
+print(f'Total test size: {y_test.size}, Correct predictions: { (y_pred == y_test).sum() }\\n')
 
 from sklearn.metrics import accuracy_score
 print(f'Test accuracy: { accuracy_score(y_test,y_pred) :.3}\\n')
@@ -285,17 +287,8 @@ st.write(
     f"Total test size: {y_test.size}, Correct predictions: { (y_pred == y_test).sum() }\n\nTest accuracy: { accuracy_score(y_test,y_pred) :.3}")
 
 st.write("**Confusion matrix:**")
-
-
-def gradient_color(val):
-    r = 255
-    g = 255 - val*2
-    b = 0
-    return f'background-color: rgb({r},{g},{b})'
-
-
 st.write(pd.DataFrame(confusion_matrix(y_test, y_pred), index=["Positive Predicted", "Negative Predicted"], columns=[
-    "Actual Positive", "Actual Negative"]).style.apply(lambda x: x.map(gradient_color), axis=None))
+    "Actual Positive", "Actual Negative"]).style.apply(lambda x: x.map(utils.gradient_color), axis=None))
 
 st.write("**Classification report:**")
 report = classification_report(
@@ -305,6 +298,7 @@ report.update({"accuracy": {"precision": None, "recall": None,
 st.dataframe(pd.DataFrame(report).T, use_container_width=True)
 
 st.divider()
+
 
 # Tensorflow implementation
 st.header("Neural Network using Tensorflow", anchor=TOC.addAnchor(
@@ -316,12 +310,71 @@ st.code('''
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense''')
+st.write("**Model architecture**")
 st.code('''
-# Neural Network
 model = Sequential([
     Dense(13, activation='relu', input_shape=(X_train.shape[1],)),
     Dense(26, activation='relu'),
     Dense(1, activation='sigmoid')
 ])
-model.compile(loss=tf.keras.losses.BinaryCrossentropy(), metrics=["accuracy"])''')
+model.compile(loss=tf.keras.losses.BinaryCrossentropy(), metrics=["accuracy"])
+''')
+
+# Training
+st.subheader("Training Tensorflow model", anchor=TOC.addSubAnchor(
+    "Neural Network using Tensorflow", "Training Tensorflow model"))
+st.code('''
+history = model.fit(X_train, y_train, epochs=1000, verbose=0)
+pd.DataFrame(history.history).plot(xlabel="epochs");''')
+
+if "modelTf" not in st.session_state:
+    st.session_state["modelTf"] = None
+
+st.session_state["modelTf"], history = loadModelTf()
+st.line_chart(history.drop(
+    history.columns[0], axis=1), use_container_width=False)
+st.write("**Model summary**")
+st.code('''
+model.summary()''')
+st.session_state["modelTf"].summary(print_fn=lambda x: st.text(x))
+
+# Prediction
+st.subheader("Predictions on Test Data",
+             anchor=TOC.addSubAnchor("Neural Network using Tensorflow", "Predictions on Test Data"))
+st.code('''
+y_pred_tf = model.predict(X_test, verbose=0)
+y_pred_tf = (y_pred_tf > 0.5).astype(int)''')
+
+y_pred_tf = st.session_state["modelTf"].predict(X_test, verbose=0)
+y_pred_tf = (y_pred_tf > 0.5).astype(int)
+st.write(y_pred_tf.T)
+y_pred_tf = y_pred_tf.ravel()
+
+# Evaluation
+st.subheader("Tensorflow model evalaution",
+             anchor=TOC.addSubAnchor("Neural Network using Tensorflow", "Tensorflow model evalaution"))
+
+st.write("**Accuracy:**")
+st.code('''
+print(f'Total test size: {y_test.size}, Correct predictions: { (y_pred_tf == y_test).sum() }\\n')
+
+from sklearn.metrics import accuracy_score
+print(f'Test accuracy: { accuracy_score(y_test,y_pred_tf) :.3}\\n')
+''')
+st.write(
+    f"Total test size: {y_test.size}, Correct predictions: { (y_pred_tf == y_test).sum() }\n\nTest accuracy: { accuracy_score(y_test,y_pred_tf) :.3}")
+
+st.write("**Confusion matrix:**")
+st.write(pd.DataFrame(confusion_matrix(y_test, y_pred_tf), index=["Positive Predicted", "Negative Predicted"], columns=[
+    "Actual Positive", "Actual Negative"]).style.apply(lambda x: x.map(utils.gradient_color), axis=None))
+
+st.write("**Classification report:**")
+report = classification_report(
+    y_test, y_pred_tf, output_dict=True, target_names=["Class 0", "Class 1"])
+report.update({"accuracy": {"precision": None, "recall": None,
+              "f1-score": report["accuracy"], "support": report['macro avg']['support']}})
+st.dataframe(pd.DataFrame(report).T, use_container_width=True)
+
+st.divider()
+
 TOC.genTableOfContent()

@@ -160,12 +160,12 @@ def saveModel():
 
     net.fit(X_train, y_train, epochs=1000, learning_rate=0.002)
 
-    filepath = "./models/my_neural_net.sav"
+    filepath = "./models/static/my_neural_net.sav"
     dill.dump(net, open(filepath, 'wb'))
 
 
 def loadModel():
-    filepath = "./models/my_neural_net.sav"
+    filepath = "./models/static/my_neural_net.sav"
     return dill.load(open(filepath, 'rb'))
 
 

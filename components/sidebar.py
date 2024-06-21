@@ -4,7 +4,8 @@ import streamlit as st
 def viewSideBar():
     st.sidebar.page_link("index.py", label="Home")
     st.sidebar.page_link("pages/eda.py", label="Exploratory Data Analysis")
-    st.sidebar.page_link("pages/neuralNet.py", label="Neural Network model")
+    st.sidebar.page_link("pages/neuralNetwork.py",
+                         label="Neural Network model")
     # st.sidebar.page_link("", label="")
 
     st.sidebar.divider()

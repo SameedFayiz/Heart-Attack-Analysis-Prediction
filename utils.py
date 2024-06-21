@@ -1,12 +1,18 @@
+import pandas as pd
+import numpy as np
 import urllib
 import streamlit as st
-import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-import numpy as np
-from models.neuralNetwork import NeuralNetwork, FullyConnectedLayer, ActivationLayer
+from sklearn.model_selection import train_test_split
+from models.neuralNet import NeuralNetwork, FullyConnectedLayer, ActivationLayer
 from models.activations import sigmoid, sigmoid_prime, Relu, Relu_prime, BinaryCrossEntropy, BinaryCrossEntropyPrime
 
+
+def gradient_color(val):
+    r = 255
+    g = 255 - val*2
+    b = 0
+    return f'background-color: rgb({r},{g},{b})'
 
 @st.cache_data
 def loadData():
