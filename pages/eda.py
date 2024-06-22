@@ -9,12 +9,16 @@ import plotly.express as px
 # Page configurations
 st.set_page_config(layout="wide")
 viewSideBar()
+TOC = utils.TableOfContent()
 
 # -----------------------------------------------------------
-st.header("Exploratory Data Analysis of Heart Attack Data")
+st.title("Exploratory Data Analysis of Heart Attack Data")
 
 # Load and read the data
-st.subheader("Load & view data")
+st.header("Data Description & Visualization",
+          anchor=TOC.addAnchor("Data Description & Visualization"))
+st.subheader("Load & view data", anchor=TOC.addSubAnchor(
+    "Data Description & Visualization", "Load & view data"))
 st.code('''import pandas as pd
 data = pd.read_csv('./dataset/heart.csv')
 data.head()''')
@@ -24,7 +28,8 @@ sample = df.head()
 st.dataframe(sample, use_container_width=True)
 
 # Dataset description
-st.subheader("Dataset description")
+st.subheader("Dataset description", anchor=TOC.addSubAnchor(
+    "Data Description & Visualization", "Dataset description"))
 st.write('''The following variables are included in the dataset:
 - **age**: Age of the patient
 - **sex**: Sex of the patient ( 0: Female, 1: Male )
@@ -48,7 +53,8 @@ st.code("data.isnull().sum()")
 st.text(f"{df.isnull().sum()}")
 
 # Check unqiue values
-st.subheader("Examining for Unique values")
+st.subheader("Examining for Unique values", anchor=TOC.addSubAnchor(
+    "Data Description & Visualization", "Examining for Unique values"))
 st.code('''unique=[]
 for i in df.columns:
     val=df[i].value_counts().count()
@@ -69,29 +75,21 @@ numeric_vars = ["age", "trtbps", "chol", "thalachh", "oldpeak"]
 categoric_vars = ["sex", "cp", "fbs", "restecg",
                   "exng", "slp", "caa", "thall", "output"]
 
-# Analysis of categorical variables
-st.subheader("Categorical variables analysis")
-
-st.code("categoric_vars")
-st.text(categoric_vars)
-st.code('''
-cat_graph_names = ["Gender", "Chest Pain Type", "Fasting Blood sugar", "Resting Electrocardiographic Results",
-                   "Exercise Induced Angina", "The Slope of ST Segment", "No. of Major Vessels", "Thal", "Target"]''')
-cat_graph_names = ["Gender", "Chest Pain Type", "Fasting Blood sugar", "Resting Electrocardiographic Results",
-                   "Exercise Induced Angina", "The Slope of ST Segment", "No. of Major Vessels", "Thal", "Target"]
 main=st.container()
 with main:
-    st.subheader("Data Visualization")
+    st.subheader("Data Visualization", anchor=TOC.addSubAnchor(
+        "Data Description & Visualization", "Data Visualization"))
     st.write("Select a variable to visualize:")
     variable = st.selectbox("Variable", numeric_vars)
     st.write(f"You selected: {variable}")
     st.write("Visualize the selected variable:")
     st.bar_chart(df[[variable]])
-    unique_number = []
-    for i in df.columns:
-        x = df[i].value_counts().count()
-        unique_number.append(x)
-    st.write(pd.DataFrame(unique_number, index=df.columns, columns=["Total Unique Values"]))
+    # unique_number = []
+    # for i in df.columns:
+    #     x = df[i].value_counts().count()
+    #     unique_number.append(x)
+    # st.write(pd.DataFrame(unique_number, index=df.columns,
+    #          columns=["Total Unique Values"]).T)
     st.write("Select a variable to visualize:")
     variable_2 = st.selectbox("Variable", categoric_vars)
     st.write(f"You selected: {variable_2}")
@@ -105,21 +103,31 @@ with main:
     st.write(df[variable_2].value_counts())
 tbh=st.container()
 with tbh:
-    st.subheader("Descriptive Statistics")
+    st.header("Data Statistics",
+              anchor=TOC.addAnchor("Data Statistics"))
+    st.subheader("Descriptive statisitcs",
+                 anchor=TOC.addSubAnchor("Data Statistics", "Descriptive statisitcs"))
     st.write("Descriptive statistics of numerical variables:")
-    st.write(df[numeric_vars].describe())
-    null_number = []
-    x = df[i].isnull().sum()
-    for i in df.columns:
-        null_number.append(x)
-    st.write("Check correlation between variables:")
-    st.write(pd.DataFrame(null_number, index=df.columns, columns=["Missing Values"]))
+    st.dataframe(df[numeric_vars].describe(), use_container_width=True)
+    # null_number = []
+    # x = df[i].isnull().sum()
+    # for i in df.columns:
+    #     null_number.append(x)
+    # st.write(pd.DataFrame(null_number, index=df.columns,
+    #          columns=["Missing Values"]))
+    st.subheader("Correlation between variables",
+                 anchor=TOC.addSubAnchor("Data Statistics", "Correlation between variables"))
+    st.write("Checking the correlation between the variables:")
     figure = plt.figure(figsize = (10,10))
-    st.write(df[categoric_vars].corr())
+    st.dataframe(df[categoric_vars].corr(), use_container_width=True)
+    st.subheader("Correlation heatmap",
+                 anchor=TOC.addSubAnchor("Data Statistics", "Correlation heatmap"))
     sns.heatmap(df.corr(),annot=True)
     st.pyplot(figure)
     st.write("The correlation heatmap shows the most related, important, and effective attributes on the target attribute. It is seen that thalachh (the maximum heart rate) and the age is negatively correlated as it has been shown above. (-0.4) Also, cp (chest pain type) is positively highly correlated with the output directly. (0.43) Thallachh, cp, and sex are selected.")
     st.write("now investigating their effects")
+    st.subheader("Graphs & charts", anchor=TOC.addSubAnchor(
+        "Data Statistics", "Graphs & charts"))
     male = df[df['sex'] == 1]
     female = df[df['sex'] == 0]
     male_counts = male['output'].value_counts()
@@ -154,7 +162,8 @@ with tbh:
     fig.update_layout(plot_bgcolor='white', paper_bgcolor='white')
     st.plotly_chart(fig)
     st.write('People with Thall type 2 Reversible Defect have more chances of heart attacks.')
-    st.subheader("Conclusion")
+    st.subheader("Conclusion", anchor=TOC.addSubAnchor(
+        "Data Statistics", "Conclusion"))
     st.write("From the above analysis, it can be concluded that:")
     st.write("- Age, chest pain type, and thall type are the most important factors affecting the risk of heart attack.")
     st.write('thalachh')
@@ -183,3 +192,4 @@ with tbh:
     st.plotly_chart(fig)
     st.write('The maximum heart rate achieved by patients with heart disease is higher compared to patients without heart disease.')
     
+TOC.genTableOfContent()
