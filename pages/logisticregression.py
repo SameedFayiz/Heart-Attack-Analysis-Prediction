@@ -246,14 +246,7 @@ weights, bias = gradient_descent(scaled_X_train, y_train, learning_rate, num_ite
 
 y_pred = predict(scaled_X_test, weights, bias)
 
-def confusion_matrix(y_true, y_pred):
-    tp = sum(1 for yt, yp in zip(y_true, y_pred) if yt == yp == 1)
-    tn = sum(1 for yt, yp in zip(y_true, y_pred) if yt == yp == 0)
-    fp = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 0 and yp == 1)
-    fn = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 1 and yp == 0)
-    return [[tn, fp], [fn, tp]]
-
-cm = confusion_matrix(y_test, y_pred)''')
+''')
 
 
 data = df.to_dict(orient='records')
@@ -330,62 +323,55 @@ weights, bias = gradient_descent(scaled_X_train, y_train, learning_rate, num_ite
 
 y_pred = predict(scaled_X_test, weights, bias)
 
-def confusion_matrix(y_true, y_pred):
-    tp = sum(1 for yt, yp in zip(y_true, y_pred) if yt == yp == 1)
-    tn = sum(1 for yt, yp in zip(y_true, y_pred) if yt == yp == 0)
-    fp = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 0 and yp == 1)
-    fn = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 1 and yp == 0)
-    return [[tn, fp], [fn, tp]]
-
+st.code('''cm = confusion_matrix(y_test, y_pred)
+st.write("Confusion Matrix:", cm)
+fig, ax = plt.subplots()
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
+disp.plot(ax=ax)
+st.pyplot(fig)''')
 cm = confusion_matrix(y_test, y_pred)
 st.write("Confusion Matrix:", cm)
+fig, ax = plt.subplots()
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
+disp.plot(ax=ax)
+st.pyplot(fig)
 
-st.code('''def classification_report(y_true, y_pred):
-    tp = sum(1 for yt, yp in zip(y_true, y_pred) if yt == yp == 1)
-    tn = sum(1 for yt, yp in zip(y_true, y_pred) if yt == yp == 0)
-    fp = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 0 and yp == 1)
-    fn = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 1 and yp == 0)
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
-    report = {
-        'precision': precision,
-        'recall': recall,
-        'f1-score': f1
-    }
-    return report
-report = classification_report(y_test, y_pred)''')
-def classification_report(y_true, y_pred):
-    tp = sum(1 for yt, yp in zip(y_true, y_pred) if yt == yp == 1)
-    tn = sum(1 for yt, yp in zip(y_true, y_pred) if yt == yp == 0)
-    fp = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 0 and yp == 1)
-    fn = sum(1 for yt, yp in zip(y_true, y_pred) if yt == 1 and yp == 0)
 
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+# Classification report
+st.write("Classification Report:")
+st.code('''classification_report(y_test, y_pred)''')
+st.text(classification_report(y_test, y_pred))
 
-    report = {
-        'precision': precision,
-        'recall': recall,
-        'f1-score': f1
-    }
-    return report
+st.code('''y_true = [12, 5]
+y_scores = [0, 14]
 
-report = classification_report(y_test, y_pred)
-st.write("Classification Report:", report)
+precision, recall, threshold = precision_recall_curve(y_true, y_scores, pos_label = 12)
 
-st.code('''def calculate_accuracy(y_true, y_pred):
-    correct_predictions = sum(yt == yp for yt, yp in zip(y_true, y_pred))
-    accuracy = correct_predictions / len(y_true)
-    return accuracy
-accuracy = calculate_accuracy(y_test, y_pred)''')
-def calculate_accuracy(y_true, y_pred):
-    correct_predictions = sum(yt == yp for yt, yp in zip(y_true, y_pred))
-    accuracy = correct_predictions / len(y_true)
-    return accuracy
+plt.plot(precision, recall, marker = "o", label = "Precision Recall Curve")
+plt.xlabel("Recall")
+plt.ylabel("Precsion")
+plt.legend(loc = "best")
+plt.title("Precision Recall Curve")
+plt.grid(True)
+plt.show()''')
+y_true = [12, 5]
+y_scores = [0, 14]
 
-accuracy = calculate_accuracy(y_test, y_pred)
+precision, recall, threshold = precision_recall_curve(y_true, y_scores, pos_label = 12)
+
+plt.plot(precision, recall, marker = "o", label = "Precision Recall Curve")
+plt.xlabel("Recall")
+plt.ylabel("Precsion")
+plt.legend(loc = "best")
+plt.title("Precision Recall Curve")
+plt.grid(True)
+plt.show()
+
+st.code('''accuracy = accuracy_score(y_test, y_pred)
+st.write("Accuracy:", accuracy)
+''')
+
+accuracy = accuracy_score(y_test, y_pred)
 st.write("Accuracy:", accuracy)
 
 st.divider()
