@@ -24,8 +24,6 @@ TOC = utils.TableOfContent()
 # -----------------------------------------------------------
 st.title("Heart Attack Prediction using Logistic Regression")
 
-
-# Python implementation
 st.header("Data Cleaning & Preprocessing",
           anchor=TOC.addAnchor("Data Cleaning & Preprocessing"))
 
@@ -177,39 +175,14 @@ st.write("Accuracy:", accuracy)
 
 #python
 st.header("using python")
-st.code('''data = df.to_dict(orient='records')
-X = []
-y = []
-for row in data:
-    features = [value for key, value in row.items() if key != 'output']
-    X.append(features)
-    y.append(row['output'])
-def train_test_split(X, y, test_size=0.1, random_state=None):
-    if random_state is not None:
-        random.seed(random_state)
-    data = list(zip(X, y))
-    random.shuffle(data)
-    split_index = int(len(data) * (1 - test_size))
-    train_data = data[:split_index]
-    test_data = data[split_index:]
-    X_train = [x for x, _ in train_data]
-    y_train = [y for _, y in train_data]
-    X_test = [x for x, _ in test_data]
-    y_test = [y for _, y in test_data]
-    return X_train, X_test, y_train, y_test
+st.code('''
+X = df.drop("output", axis=1).values.tolist() 
+y = df["output"].values.tolist()  
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=101)
 
-def fit_scaler(X):
-    mean = [sum(col) / len(col) for col in zip(*X)]
-    std = [(sum((x - m) ** 2 for x in col) / len(col)) ** 0.5 for col, m in zip(zip(*X), mean)]
-    return mean, std
-def transform_scaler(X, mean, std):
-    scaled_X = [[(x - m) / s for x, m, s in zip(row, mean, std)] for row in X]
-    return scaled_X
-mean, std = fit_scaler(X_train)
-scaled_X_train = transform_scaler(X_train, mean, std)
-scaled_X_test = transform_scaler(X_test, mean, std)
-
+scaler = StandardScaler()
+scaled_X_train = scaler.fit_transform(X_train).tolist() 
+scaled_X_test = scaler.transform(X_test).tolist()
 def sigmoid(z):
     return 1 / (1 + math.exp(-z))
 
@@ -247,45 +220,14 @@ weights, bias = gradient_descent(scaled_X_train, y_train, learning_rate, num_ite
 y_pred = predict(scaled_X_test, weights, bias)
 
 ''')
-
-
-data = df.to_dict(orient='records')
-X = []
-y = []
-
-for row in data:
-    features = [value for key, value in row.items() if key != 'output']
-    X.append(features)
-    y.append(row['output'])
-
-def train_test_split(X, y, test_size=0.1, random_state=None):
-    if random_state is not None:
-        random.seed(random_state)
-    data = list(zip(X, y))
-    random.shuffle(data)
-    split_index = int(len(data) * (1 - test_size))
-    train_data = data[:split_index]
-    test_data = data[split_index:]
-    X_train = [x for x, _ in train_data]
-    y_train = [y for _, y in train_data]
-    X_test = [x for x, _ in test_data]
-    y_test = [y for _, y in test_data]
-
-    return X_train, X_test, y_train, y_test
-
+X = df.drop("output", axis=1).values.tolist()  # list of lists
+y = df["output"].values.tolist()  
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=101)
 
-def fit_scaler(X):
-    mean = [sum(col) / len(col) for col in zip(*X)]
-    std = [(sum((x - m) ** 2 for x in col) / len(col)) ** 0.5 for col, m in zip(zip(*X), mean)]
-    return mean, std
-def transform_scaler(X, mean, std):
-    scaled_X = [[(x - m) / s for x, m, s in zip(row, mean, std)] for row in X]
-    return scaled_X
-mean, std = fit_scaler(X_train)
-scaled_X_train = transform_scaler(X_train, mean, std)
-scaled_X_test = transform_scaler(X_test, mean, std)
+scaler = StandardScaler()
+scaled_X_train = scaler.fit_transform(X_train).tolist() 
+scaled_X_test = scaler.transform(X_test).tolist()
 
 def sigmoid(z):
     return 1 / (1 + math.exp(-z))
@@ -359,13 +301,13 @@ y_scores = [0, 14]
 
 precision, recall, threshold = precision_recall_curve(y_true, y_scores, pos_label = 12)
 
-plt.plot(precision, recall, marker = "o", label = "Precision Recall Curve")
-plt.xlabel("Recall")
-plt.ylabel("Precsion")
-plt.legend(loc = "best")
-plt.title("Precision Recall Curve")
-plt.grid(True)
-plt.show()
+fig, ax = plt.subplots()
+ax.plot(recall, precision, marker='o', label='Precision-Recall Curve')
+ax.set_xlabel("Recall")
+ax.set_ylabel("Precision")
+ax.legend(loc="best")
+ax.set_title("Precision-Recall Curve")
+ax.grid(True)
 
 st.code('''accuracy = accuracy_score(y_test, y_pred)
 st.write("Accuracy:", accuracy)
