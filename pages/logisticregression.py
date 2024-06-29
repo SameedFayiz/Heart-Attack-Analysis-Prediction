@@ -148,8 +148,8 @@ st.code('''st.text(classification_report(y_test, y_pred))''')
 st.text(classification_report(y_test, y_pred))
 
 # Precision-recall curve
-st.code('''y_true = [12, 3]
-y_scores = [2, 14]
+st.code('''y_true = [12, 2]
+y_scores = [1, 16]
 precision, recall, _ = precision_recall_curve(y_true, y_scores, pos_label=12)
 fig, ax = plt.subplots()
 ax.plot(recall, precision, marker='o', label='Precision-Recall Curve')
@@ -159,8 +159,8 @@ ax.set_title('Precision-Recall Curve')
 ax.legend(loc='best')
 ax.grid(True)
 st.pyplot(fig)''')
-y_true = [12, 3]
-y_scores = [2, 14]
+y_true = [12, 2]
+y_scores = [1, 16]
 precision, recall, _ = precision_recall_curve(y_true, y_scores, pos_label=12)
 fig, ax = plt.subplots()
 ax.plot(recall, precision, marker='o', label='Precision-Recall Curve')
