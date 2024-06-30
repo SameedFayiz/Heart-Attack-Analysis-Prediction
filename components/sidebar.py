@@ -8,9 +8,8 @@ def viewSideBar():
                          label="Neural Network model")
     st.sidebar.page_link("pages/logisticregression.py",
                          label="Logistic Regression model")
-    # st.sidebar.page_link("", label="")
 
     st.sidebar.divider()
 
     st.sidebar.link_button(
-        "Go to GitHub Repo", "https://github.com/SameedFayiz/Heart-Attack-Analysis-Prediction")
+        "Go to GitHub Repo", "https://github.com/SameedFayiz/Heart-Attack-Analysis-Prediction", type="primary")

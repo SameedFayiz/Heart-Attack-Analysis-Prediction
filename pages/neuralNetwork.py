@@ -4,13 +4,16 @@ import pandas as pd
 import utils
 from models.neuralNet import loadModel
 from components.sidebar import viewSideBar
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_recall_curve, PrecisionRecallDisplay
 from models.neuralNetTf import loadModelTf
 
 
 # Page configurations
 st.set_page_config(layout="wide")
 viewSideBar()
+st.link_button(
+    "Open in Google Colab", "https://colab.research.google.com/drive/1c5r0bxiNByK_xuCgLODZF2yMQlpQsCpO?usp=sharing")
+
 TOC = utils.TableOfContent()
 
 # -----------------------------------------------------------
@@ -270,12 +273,14 @@ st.subheader("Prediction on Test Data",
              anchor=TOC.addSubAnchor("Neural Network using Python", "Prediction on Test Data"))
 st.code('''y_pred=net.predict(X_test)
 y_pred=(y_pred > 0.5).astype(int)''')
-y_pred = utils.predNNModel(X_test, st.session_state["model"])
+
+y_pred_probs = st.session_state["model"].predict(X_test)
+y_pred = (y_pred_probs > 0.5).astype(int)
 st.write(y_pred.reshape(1, -1))
 
 # Evaluation
-st.subheader("Model evalaution",
-             anchor=TOC.addSubAnchor("Neural Network using Python", "Model evalaution"))
+st.subheader("Model evaluation",
+             anchor=TOC.addSubAnchor("Neural Network using Python", "Model evaluation"))
 st.write("**Accuracy:**")
 st.code('''
 print(f'Total test size: {y_test.size}, Correct predictions: { (y_pred == y_test).sum() }\\n')
@@ -296,6 +301,12 @@ report = classification_report(
 report.update({"accuracy": {"precision": None, "recall": None,
               "f1-score": report["accuracy"], "support": report['macro avg']['support']}})
 st.dataframe(pd.DataFrame(report).T, use_container_width=True)
+
+st.write("**Precision-Recall curve:**")
+prec, recall, _ = precision_recall_curve(
+    y_test, y_pred)
+pr_display = PrecisionRecallDisplay(precision=prec, recall=recall).plot()
+st.write(pr_display.figure_)
 
 st.divider()
 
@@ -345,14 +356,14 @@ st.code('''
 y_pred_tf = model.predict(X_test, verbose=0)
 y_pred_tf = (y_pred_tf > 0.5).astype(int)''')
 
-y_pred_tf = st.session_state["modelTf"].predict(X_test, verbose=0)
-y_pred_tf = (y_pred_tf > 0.5).astype(int)
+y_pred_tf_probs = st.session_state["modelTf"].predict(X_test, verbose=0)
+y_pred_tf = (y_pred_tf_probs > 0.5).astype(int)
 st.write(y_pred_tf.T)
 y_pred_tf = y_pred_tf.ravel()
 
 # Evaluation
-st.subheader("Tensorflow model evalaution",
-             anchor=TOC.addSubAnchor("Neural Network using Tensorflow", "Tensorflow model evalaution"))
+st.subheader("Tensorflow model evaluation",
+             anchor=TOC.addSubAnchor("Neural Network using Tensorflow", "Tensorflow model evaluation"))
 
 st.write("**Accuracy:**")
 st.code('''
@@ -374,6 +385,12 @@ report = classification_report(
 report.update({"accuracy": {"precision": None, "recall": None,
               "f1-score": report["accuracy"], "support": report['macro avg']['support']}})
 st.dataframe(pd.DataFrame(report).T, use_container_width=True)
+
+st.write("**Precision-Recall curve:**")
+prec, recall, _ = precision_recall_curve(
+    y_test, y_pred_tf)
+pr_display = PrecisionRecallDisplay(precision=prec, recall=recall).plot()
+st.write(pr_display.figure_)
 
 st.divider()
 

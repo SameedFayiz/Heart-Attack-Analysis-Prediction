@@ -14,6 +14,7 @@ def gradient_color(val):
     b = 0
     return f'background-color: rgb({r},{g},{b})'
 
+
 @st.cache_data
 def loadData():
     return pd.read_csv("./dataset/heart.csv")
@@ -81,8 +82,3 @@ def trainNNModel(X_train, y_train, eleRef):
     net.use(BinaryCrossEntropy, BinaryCrossEntropyPrime)
 
     return net, net.fit(X_train, y_train, epochs=1000, learning_rate=0.002, printCallback=writeEpochs)
-
-
-def predNNModel(X_test, net):
-    y_pred_ = net.predict(X_test)
-    return (y_pred_ > 0.5).astype(int)
