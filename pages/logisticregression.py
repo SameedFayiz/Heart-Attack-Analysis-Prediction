@@ -261,7 +261,11 @@ st.pyplot(fig)
 # Classification report
 st.write("**Classification Report:**")
 st.code('''classification_report(y_test, y_pred)''')
-st.text(classification_report(y_test, y_pred))
+report = classification_report(
+    y_test, y_pred, output_dict=True, target_names=["Class 0", "Class 1"])
+report.update({"accuracy": {"precision": None, "recall": None,
+              "f1-score": report["accuracy"], "support": report['macro avg']['support']}})
+st.dataframe(pd.DataFrame(report).T, use_container_width=True)
 
 
 # Precision-recall curve
@@ -291,7 +295,7 @@ ax.set_ylabel("Precision")
 ax.legend(loc="best")
 ax.set_title("Precision-Recall Curve")
 ax.grid(True)
-
+st.pyplot(fig)
 
 st.divider()
 TOC.genTableOfContent()

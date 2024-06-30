@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -305,8 +306,17 @@ st.dataframe(pd.DataFrame(report).T, use_container_width=True)
 st.write("**Precision-Recall curve:**")
 prec, recall, _ = precision_recall_curve(
     y_test, y_pred)
-pr_display = PrecisionRecallDisplay(precision=prec, recall=recall).plot()
-st.write(pr_display.figure_)
+prec, recall, _ = precision_recall_curve(
+    y_test, y_pred_probs)
+
+fig, ax = plt.subplots()
+ax.plot(recall, prec, label='Precision-Recall Curve')
+ax.set_xlabel("Recall")
+ax.set_ylabel("Precision")
+ax.legend(loc="best")
+ax.set_title("Precision-Recall Curve")
+ax.grid(True)
+st.pyplot(fig)
 
 st.divider()
 
@@ -388,9 +398,16 @@ st.dataframe(pd.DataFrame(report).T, use_container_width=True)
 
 st.write("**Precision-Recall curve:**")
 prec, recall, _ = precision_recall_curve(
-    y_test, y_pred_tf)
-pr_display = PrecisionRecallDisplay(precision=prec, recall=recall).plot()
-st.write(pr_display.figure_)
+    y_test, y_pred_tf_probs)
+
+fig, ax = plt.subplots()
+ax.plot(recall, prec, label='Precision-Recall Curve')
+ax.set_xlabel("Recall")
+ax.set_ylabel("Precision")
+ax.legend(loc="best")
+ax.set_title("Precision-Recall Curve")
+ax.grid(True)
+st.pyplot(fig)
 
 st.divider()
 
