@@ -8,3 +8,6 @@ This repository contains a project focused on analyzing and predicting heart att
 
 ## Explore the Dataset
 Visit: https://www.kaggle.com/datasets/rashikrahmanpritom/heart-attack-analysis-prediction-dataset
+
+## Project's Cloud hosted Link
+Visit: https://heart-attack-analysis-prediction-cfdmlctjxnzsudyw8tqghb.streamlit.app/
