@@ -65,7 +65,7 @@ def preProcessAndSplit(data):
     X_train = object.fit_transform(X_train)
     X_test = object.transform(X_test)
 
-    return X_train, X_test, y_train, y_test
+    return X_train, X_test, y_train, y_test, object
 
 
 def trainNNModel(X_train, y_train, eleRef):
@@ -82,3 +82,46 @@ def trainNNModel(X_train, y_train, eleRef):
     net.use(BinaryCrossEntropy, BinaryCrossEntropyPrime)
 
     return net, net.fit(X_train, y_train, epochs=1000, learning_rate=0.002, printCallback=writeEpochs)
+
+
+@st.experimental_fragment
+def fragment_function(callBack, key):
+    cat_options = {"Sex": {"Female": 0, "Male": 1},
+                   "Chest pain": {"Typical angina": 0,  "Atypical angina": 1, "Non-anginal pain": 2, "Asymptomatic": 3},
+                   "Fasting blood sugar": {"<= 120 mg/dl": 0, "> 120 mg/dl": 1},
+                   "Resting electrocardiographic results": {"Normal": 0, "ST-T wave abnormality": 1, "Probable left ventricular hypertrophy": 2},
+                   "Exercise induced angina": {"Yes": 0, "No": 1},
+                   "Slope (peak exercise ST segment)": {"Upsloping": 0, "Flat": 1, "Downsloping": 2},
+                   "Major vessels": {0: 0, 1: 1, 2: 2, 3: 3},
+                   "Thalassemia": {"Null": 0,  "Fixed defect": 1, "Normal": 2, "Reversible defect": 3}}
+
+    num_ranges = {"Age": [20, 100],
+                  "Resting blood pressure": [94, 200],
+                  "Cholesterol level": [126, 564],
+                  "Max heart rate achieved": [71, 202],
+                  "ST depression induced by exercise relative to rest": [0.0, 6.2]}
+
+    test_vals = {"Age": 54,
+                 "Sex": 1,
+                 "Chest pain": 0,
+                 "Resting blood pressure": 131,
+                 "Cholesterol level": 246,
+                 "Fasting blood sugar": 0,
+                 "Resting electrocardiographic results": 0,
+                 "Max heart rate achieved": 149,
+                 "Exercise induced angina": 0,
+                 "ST depression induced by exercise relative to rest": 1,
+                 "Slope (peak exercise ST segment)": 0,
+                 "Major vessels": 0,
+                 "Thalassemia": 0
+                 }
+
+    for i in num_ranges.keys():
+        test_vals[i] = st.slider(i, min_value=num_ranges[i][0],
+                                 max_value=num_ranges[i][1], key=f"{i}{key}")
+    for i in cat_options.keys():
+        test_vals[i] = cat_options[i][st.selectbox(
+            i, options=cat_options[i].keys(), key=f"{i}{key}")]
+
+    if st.button("Predict", key=key):
+        callBack(np.array(list(test_vals.values())).reshape(1, -1))

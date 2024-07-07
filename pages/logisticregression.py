@@ -83,7 +83,7 @@ X_test_scaled = object.transform(X_test)
 print(f"Training set -> {X_train.shape}\\nTest set ->{X_test.shape}")
 ''')
 
-X_train, X_test, y_train, y_test = utils.preProcessAndSplit(df)
+X_train, X_test, y_train, y_test, object = utils.preProcessAndSplit(df)
 st.text(f"Training set -> {X_train.shape}\nTest set ->{X_test.shape}")
 
 st.divider()
@@ -119,6 +119,25 @@ st.bar_chart(coes)
 st.code("y_pred = model.predict(X_test_scaled)")
 y_pred = model.predict(X_test)
 st.write(y_pred.reshape(1, -1))
+
+st.subheader("Predict Yourself ",
+             anchor=TOC.addSubAnchor("Logistic Regression", "Predict Yourself "))
+
+
+def predictor(x):
+    x = object.transform(x)
+    st.dataframe(pd.DataFrame(x, columns=X.columns), use_container_width=True)
+
+    y = model.predict(x)[0]
+    if y > 0.5:
+        st.error(
+            f"Patient has high chances of heart attack")
+    else:
+        st.success(f"Patient has very low chances of heart attack")
+
+
+utils.fragment_function(predictor, key=2)
+
 
 # Evaluation
 st.subheader("Model evaluation",
@@ -231,6 +250,24 @@ weights, bias = gradient_descent(
     X_train, y_train, learning_rate, num_iterations)
 
 y_pred = predict(X_test, weights, bias)
+
+st.subheader("Predict Yourself",
+             anchor=TOC.addSubAnchor("Logistic Regression (Without python package)", "Predict Yourself"))
+
+
+def predictor(x):
+    x = object.transform(x)
+    st.dataframe(pd.DataFrame(x, columns=X.columns), use_container_width=True)
+
+    y = predict(x, weights, bias)[0]
+    if y > 0.5:
+        st.error(
+            f"Patient has high chances of heart attack")
+    else:
+        st.success(f"Patient has very low chances of heart attack")
+
+
+utils.fragment_function(predictor, key=3)
 
 # Evaluation
 st.subheader("Model Evaluation",

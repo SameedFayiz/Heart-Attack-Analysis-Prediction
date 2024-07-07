@@ -5,7 +5,8 @@ import pandas as pd
 import utils
 from models.neuralNet import loadModel
 from components.sidebar import viewSideBar
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_recall_curve, PrecisionRecallDisplay
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_recall_curve
+from sklearn.preprocessing import StandardScaler
 from models.neuralNetTf import loadModelTf
 
 
@@ -81,8 +82,8 @@ X_train = object.fit_transform(X_train)
 X_test = object.transform(X_test)
 print(f"Training set -> {X_train.shape}\\nTest set ->{X_test.shape}")
 ''')
-
-X_train, X_test, y_train, y_test = utils.preProcessAndSplit(df)
+X = df.drop("output", axis=1)
+X_train, X_test, y_train, y_test, object = utils.preProcessAndSplit(df)
 st.text(f"Training set -> {X_train.shape}\nTest set ->{X_test.shape}")
 
 st.divider()
@@ -279,6 +280,28 @@ y_pred_probs = st.session_state["model"].predict(X_test)
 y_pred = (y_pred_probs > 0.5).astype(int)
 st.write(y_pred.reshape(1, -1))
 
+st.subheader("Predict Yourself",
+             anchor=TOC.addSubAnchor("Neural Network using Python", "Predict Yourself"))
+
+
+def predictor(x):
+    x = object.transform(x)
+    st.dataframe(pd.DataFrame(x, columns=X.columns), use_container_width=True)
+    y = st.session_state["model"].predict(x)[0]
+    if y > 0.5:
+        st.error(
+            f"Patient has high chances of heart attack, Probability={y : .3}")
+    elif y > 0.25:
+        st.warning(
+            f"Patient has some chances of heart attack , Probability={y : .3}")
+    else:
+        st.success(
+            f"Patient has low chances of heart attack , Probability={y : .3}")
+
+
+utils.fragment_function(predictor, key=0)
+
+
 # Evaluation
 st.subheader("Model evaluation",
              anchor=TOC.addSubAnchor("Neural Network using Python", "Model evaluation"))
@@ -370,6 +393,28 @@ y_pred_tf_probs = st.session_state["modelTf"].predict(X_test, verbose=0)
 y_pred_tf = (y_pred_tf_probs > 0.5).astype(int)
 st.write(y_pred_tf.T)
 y_pred_tf = y_pred_tf.ravel()
+
+st.subheader("Predict Yourself (TensorFlow)",
+             anchor=TOC.addSubAnchor("Neural Network using Tensorflow", "Predict Yourself (TensorFlow)"))
+
+
+def predictor(x):
+    x = object.transform(x)
+    st.dataframe(pd.DataFrame(x, columns=X.columns), use_container_width=True)
+    y = st.session_state["modelTf"].predict(x)[0, 0]
+    if y > 0.5:
+        st.error(
+            f"Patient has high chances of heart attack, Probability={y : .3}")
+    elif y > 0.25:
+        st.warning(
+            f"Patient has some chances of heart attack , Probability={y : .3}")
+    else:
+        st.success(
+            f"Patient has low chances of heart attack , Probability={y : .3}")
+
+
+utils.fragment_function(predictor, key=1)
+
 
 # Evaluation
 st.subheader("Tensorflow model evaluation",
